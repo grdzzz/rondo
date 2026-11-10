@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#090C02">
+<meta name="color-scheme" content="light">
+<title>Rondo · Lloguer de material de muntanya, neu i aigua</title>
+<meta name="description" content="Lloga esquís, bicicletes de muntanya, material d'escalada, caiacs i més per hores. Tria el dia i l'hora i reserva en línia.">
+<link rel="icon" type="image/svg+xml" href="brand/rondo-cuernos-rojo.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://images.unsplash.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Playfair+Display:ital,wght@1,500;1,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="rondo.css">
+<style>
+/* Portada */
+.hero{position:relative;height:min(92vh,880px);min-height:560px;color:#fff;display:grid;place-items:center;text-align:center;overflow:hidden;isolation:isolate}
+.hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2}
+.hero::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(9,12,2,.35) 0%,rgba(9,12,2,.15) 40%,rgba(9,12,2,.55) 100%)}
+.hero .in{padding:120px 24px 48px;max-width:980px}
+.eyebrow{font-family:var(--font-head);font-weight:700;text-transform:uppercase;letter-spacing:.2em;font-size:13px;margin:0 0 16px}
+.hero h1{font-family:var(--font-accent);font-style:italic;font-weight:700;font-size:clamp(52px,9vw,112px);letter-spacing:-1px;margin-bottom:16px;color:var(--salvia-clar)}
+.hero p.lead{font-size:clamp(17px,2vw,20px);margin:0 auto 32px;max-width:520px}
+.cta-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+
+/* Mosaics */
+.tiles{display:grid;gap:8px;padding:8px}
+.tiles.three{grid-template-columns:repeat(3,1fr)}
+.tiles.two{grid-template-columns:repeat(2,1fr)}
+.tile{position:relative;display:grid;place-items:end center;text-align:center;color:#fff;overflow:hidden;isolation:isolate;text-decoration:none;aspect-ratio:3/4}
+.tiles.two .tile{aspect-ratio:4/3}
+.tile img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2;transition:transform .6s var(--ease)}
+.tile::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(9,12,2,0) 25%,rgba(9,12,2,.35) 55%,rgba(9,12,2,.82) 100%)}
+.tile .txt{text-shadow:0 1px 12px rgba(9,12,2,.45)}
+.tile:hover img{transform:scale(1.03)}
+.tile .txt{padding:32px 24px 40px;max-width:440px}
+.tile h2{font-size:clamp(28px,3vw,40px);text-transform:uppercase;letter-spacing:.02em;margin-bottom:8px}
+.tile p{margin:0 0 20px;font-size:16px}
+
+/* Seccions de text */
+.section{max-width:1440px;margin:0 auto;padding:96px 24px}
+.section-title{text-align:center;margin-bottom:48px}
+.section-title .eyebrow{color:var(--vermell)}
+.section-title h2{font-size:clamp(32px,4vw,48px)}
+.section-title h2 em{font-family:var(--font-accent);font-weight:500;color:var(--vermell)}
+
+.steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:32px;counter-reset:s}
+.steps li{border-top:1.5px solid var(--negre);padding-top:20px}
+.steps .n{font-family:var(--font-accent);font-style:italic;font-size:44px;color:var(--vermell);line-height:1}
+.steps h3{font-size:22px;margin:12px 0 8px}
+.steps p{margin:0;color:var(--muted)}
+.steps-cta{text-align:center;margin-top:48px}
+
+.stories{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 8px}
+.story img{width:100%;aspect-ratio:1/1;object-fit:cover;object-position:center 70%;background:var(--gris)}
+.story .txt{padding:20px 4px 0}
+.story h3{font-family:var(--font-body);font-weight:400;font-size:24px;margin-bottom:8px}
+.story p{margin:0 0 12px;color:var(--muted);font-size:15px}
+.story .price{font-family:var(--font-head);font-weight:700;margin-bottom:8px}
+
+.manifest{background:var(--salvia-clar);text-align:center;padding:112px 24px}
+.manifest svg{width:56px;height:56px;color:var(--vermell);margin:0 auto 24px}
+.manifest blockquote{margin:0 auto;max-width:900px;font-family:var(--font-accent);font-style:italic;font-weight:500;font-size:clamp(26px,3.6vw,44px);line-height:1.25;text-wrap:balance}
+.values{list-style:none;padding:0;margin:40px 0 0;display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
+.values li{padding:8px 18px;border:1.5px solid var(--negre);border-radius:999px;font-family:var(--font-head);font-weight:700;font-size:14px;text-transform:uppercase;letter-spacing:.08em}
+
+@media (max-width:960px){
+  .tiles.three{grid-template-columns:1fr}
+  .tiles.three .tile{aspect-ratio:4/3}
+  .stories{grid-template-columns:1fr 1fr}
+  .stories .story:last-child{grid-column:1/-1}
+  .stories .story:last-child img{aspect-ratio:16/9}
+  .steps{grid-template-columns:1fr;gap:28px}
+  .section{padding:72px 20px}
+}
+@media (max-width:640px){
+  .tiles.two{grid-template-columns:1fr}
+  .tiles .tile{aspect-ratio:4/5}
+  .stories{grid-template-columns:1fr;padding:0 8px}
+  .stories .story:last-child img{aspect-ratio:4/5}
+  .hero{min-height:620px}
+  .cta-row .btn{width:100%}
+  .manifest{padding:80px 20px}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#contingut">Ves al contingut</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-horns" viewBox="0 0 256 256"><path d="M164 28C192 46 226 80 231 118C232 132 224 142 208 146L176 154L182 170L140 212L140 150L158 132L184 132C192 104 186 64 164 28Z" fill="currentColor"/><path d="M92 28C64 46 30 80 25 118C24 132 32 142 48 146L80 154L74 170L116 212L116 150L98 132L72 132C64 104 70 64 92 28Z" fill="currentColor"/></symbol>
+    <symbol id="i-bag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12l-1 13H7z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  </defs>
+</svg>
+
+<div class="topbar"><div class="in">
+  <span><strong>Cancel·lació gratuïta</strong> fins a 24&nbsp;h abans de la reserva</span>
+  <nav aria-label="Enllaços d'ajuda"><a href="#com-funciona">Com funciona</a><a href="#contacte">Horari i contacte</a></nav>
+</div></div>
+
+<header class="site-header">
+  <div class="bar">
+    <button class="icon-btn menu-btn" type="button" aria-expanded="false" aria-controls="mnav" aria-label="Obre el menú"><svg aria-hidden="true"><use href="#i-menu"/></svg></button>
+    <a class="logo" href="./" aria-label="Rondo, inici"><svg aria-hidden="true"><use href="#i-horns"/></svg><span translate="no">Rondo</span></a>
+    <nav class="main-nav" aria-label="Principal"><ul>
+      <li><a href="botiga.html?cat=neu">Neu</a></li>
+      <li><a href="botiga.html?cat=muntanya">Muntanya</a></li>
+      <li><a href="botiga.html?cat=aigua">Aigua</a></li>
+      <li><a href="botiga.html">Tot el material</a></li>
+    </ul></nav>
+    <div class="actions">
+      <a class="icon-btn" href="botiga.html?cerca=1" aria-label="Cerca material"><svg aria-hidden="true"><use href="#i-search"/></svg></a>
+      <a class="icon-btn" href="botiga.html?cistella=1" id="cartLink" aria-label="Cistella, 0 articles"><svg aria-hidden="true"><use href="#i-bag"/></svg><span class="badge num" id="cartBadge" data-n="0" aria-hidden="true">0</span></a>
+    </div>
+  </div>
+  <nav class="mobile-nav" id="mnav" aria-label="Principal" hidden><ul>
+    <li><a href="botiga.html?cat=neu">Neu</a></li>
+    <li><a href="botiga.html?cat=muntanya">Muntanya</a></li>
+    <li><a href="botiga.html?cat=aigua">Aigua</a></li>
+    <li><a href="botiga.html">Tot el material</a></li>
+    <li><a href="#com-funciona">Com funciona</a></li>
+  </ul></nav>
+</header>
+
+<main id="contingut">
+  <section class="hero" aria-labelledby="hero-title">
+    <img src="https://images.unsplash.com/photo-1785970978325-249db80b2a02?auto=format&fit=crop&w=1600&q=70"
+         srcset="https://images.unsplash.com/photo-1785970978325-249db80b2a02?auto=format&fit=crop&w=800&q=70 800w, https://images.unsplash.com/photo-1785970978325-249db80b2a02?auto=format&fit=crop&w=1600&q=70 1600w, https://images.unsplash.com/photo-1785970978325-249db80b2a02?auto=format&fit=crop&w=2400&q=70 2400w"
+         sizes="100vw" width="1600" height="1067" fetchpriority="high" alt="Esquiador pujant una carena nevada al capvespre">
+    <div class="in">
+      <p class="eyebrow">Temporada d'hivern</p>
+      <h1 id="hero-title">Viu el moment</h1>
+      <p class="lead">Esquís, raquetes i material d'alta muntanya per hores. Reserva el dia i l'hora, recull-ho a la botiga i surt.</p>
+      <div class="cta-row">
+        <a class="btn btn-line" href="botiga.html?cat=neu">Reserva material de neu</a>
+        <a class="btn btn-line" href="botiga.html">Veure tot el material</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="tiles three" aria-label="Categories">
+    <a class="tile" href="botiga.html?cat=neu">
+      <img src="https://images.unsplash.com/photo-1640189668430-f9791d4db74a?auto=format&fit=crop&w=900&q=70" width="900" height="1200" loading="lazy" alt="">
+      <div class="txt"><h2>Neu</h2><p>Esquís, snowboard, raquetes, piolet i grampons.</p><span class="btn btn-line">Veure material de neu</span></div>
+    </a>
+    <a class="tile" href="botiga.html?cat=muntanya">
+      <img src="https://images.unsplash.com/photo-1534146789009-76ed5060ec70?auto=format&fit=crop&w=900&q=70" width="900" height="1200" loading="lazy" alt="">
+      <div class="txt"><h2>Muntanya</h2><p>Bicicletes de muntanya, e-bikes, escalada i trekking.</p><span class="btn btn-line">Veure material de muntanya</span></div>
+    </a>
+    <a class="tile" href="botiga.html?cat=aigua">
+      <img src="https://images.unsplash.com/photo-1781367509722-f95625325fd5?auto=format&fit=crop&w=900&q=70" width="900" height="1200" loading="lazy" alt="">
+      <div class="txt"><h2>Aigua</h2><p>Caiacs dobles i taules de paddle surf.</p><span class="btn btn-line">Veure material d'aigua</span></div>
+    </a>
+  </div>
+
+  <section class="section" id="com-funciona" aria-labelledby="how-title" style="scroll-margin-top:96px">
+    <div class="section-title"><p class="eyebrow">Com funciona</p><h2 id="how-title">Reserva en tres passos</h2></div>
+    <ol class="steps">
+      <li><div class="n" aria-hidden="true">01</div><h3>Tria el material</h3><p>Cada article mostra el preu per hora i les unitats que tenim a la botiga.</p></li>
+      <li><div class="n" aria-hidden="true">02</div><h3>Reserva el dia i l'hora</h3><p>Veus les hores lliures dels propers 10 dies. A partir de 6 hores a la cistella tens un 10% de descompte.</p></li>
+      <li><div class="n" aria-hidden="true">03</div><h3>Recull-ho i paga a la botiga</h3><p>Ensenya el codi de reserva quan vinguis. Pots cancel·lar sense cost fins a 24&nbsp;h abans.</p></li>
+    </ol>
+    <div class="steps-cta"><a class="btn btn-primary" href="botiga.html">Comença la reserva</a></div>
+  </section>
+
+  <section aria-labelledby="stories-title" style="padding-bottom:96px">
+    <div class="section-title" style="padding:0 24px"><p class="eyebrow">Destacats</p><h2 id="stories-title">Material <em>destacat</em></h2></div>
+    <div class="stories">
+      <article class="story">
+        <img src="https://images.unsplash.com/photo-1585919269458-6259dfe9f21a?auto=format&fit=crop&w=900&q=70" width="900" height="1125" loading="lazy" alt="Esquiador baixant per neu verge">
+        <div class="txt"><h3>Esquís all-mountain</h3><p>De 160 a 185 cm, amb fixacions ajustades a la teva talla.</p><p class="price num">14 € / hora</p><a class="link-under" href="botiga.html?p=esquis">Reserva els esquís</a></div>
+      </article>
+      <article class="story">
+        <img src="https://images.unsplash.com/photo-1633707167682-9068729bc84c?auto=format&fit=crop&w=900&q=70" width="900" height="1125" loading="lazy" alt="Ciclista amb bicicleta de muntanya en un corriol de bosc">
+        <div class="txt"><h3>E-bike de muntanya</h3><p>Motor central i 90 km d'autonomia. Bateria carregada a cada lloguer.</p><p class="price num">18 € / hora</p><a class="link-under" href="botiga.html?p=ebtt">Reserva l'e-bike</a></div>
+      </article>
+      <article class="story">
+        <img src="https://images.unsplash.com/photo-1601224748193-d24f166b5c77?auto=format&fit=crop&w=900&q=70" width="900" height="1125" loading="lazy" alt="Escalador en una paret de roca">
+        <div class="txt"><h3>Kit d'escalada</h3><p>Arnès, peus de gat, casc i joc de cintes exprés.</p><p class="price num">9 € / hora</p><a class="link-under" href="botiga.html?p=escalada">Reserva el kit</a></div>
+      </article>
+    </div>
+  </section>
+
+  <div class="tiles two" aria-label="Més propostes">
+    <a class="tile" href="botiga.html?p=raquetes">
+      <img src="https://images.unsplash.com/photo-1765412535991-2bd2b7994014?auto=format&fit=crop&w=1200&q=70" width="1200" height="900" loading="lazy" alt="">
+      <div class="txt"><h2>Raquetes de neu</h2><p>Per caminar pel bosc nevat sense experiència prèvia. 6&nbsp;€ l'hora.</p><span class="btn btn-line">Reserva raquetes</span></div>
+    </a>
+    <a class="tile" href="botiga.html">
+      <img src="https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&w=1200&q=70" width="1200" height="900" loading="lazy" alt="">
+      <div class="txt"><h2>Sortides llargues</h2><p>A partir de 6 hores a la cistella, et descomptem un 10% del total.</p><span class="btn btn-line">Veure tot el material</span></div>
+    </a>
+  </div>
+
+  <section class="manifest" aria-labelledby="manifest-title">
+    <h2 id="manifest-title" class="sr-only">Qui som</h2>
+    <svg aria-hidden="true"><use href="#i-horns"/></svg>
+    <blockquote><p style="margin:0">Rondo és un lloc que t'ajuda a complir les aventures que somies i desitges.</p></blockquote>
+    <ul class="values" aria-label="Valors de Rondo"><li>Actiu</li><li>Motivador</li><li>Prèmium</li><li>Únic</li></ul>
+  </section>
+</main>
+
+<footer class="site-footer" id="contacte">
+  <div class="in">
+    <div class="foot-brand"><svg aria-hidden="true"><use href="#i-horns"/></svg><em>Viu el moment</em></div>
+    <div class="foot-cols">
+      <div><h2>Lloguer</h2><ul>
+        <li><a href="botiga.html?cat=neu">Neu</a></li><li><a href="botiga.html?cat=muntanya">Muntanya</a></li><li><a href="botiga.html?cat=aigua">Aigua</a></li><li><a href="botiga.html">Tot el material</a></li></ul></div>
+      <div><h2>Reserves</h2><ul>
+        <li><a href="#com-funciona">Com funciona</a></li><li><a href="botiga.html?cistella=1">La teva cistella</a></li></ul></div>
+      <div><h2>Horari</h2><p>Obert cada dia<br>de 9:00 a 20:00</p></div>
+      <div><h2>Pagament</h2><p>Pagues a la botiga quan reculls el material.</p></div>
+    </div>
+    <div class="foot-legal"><span>© <span translate="no">Rondo</span></span><span>Fotografies: Unsplash</span></div>
+  </div>
+</footer>
+
+<script>
+/* Menú mòbil */
+const menuBtn=document.querySelector('.menu-btn'), mnav=document.getElementById('mnav');
+menuBtn.addEventListener('click',()=>{
+  const open=menuBtn.getAttribute('aria-expanded')==='true';
+  menuBtn.setAttribute('aria-expanded',String(!open));
+  menuBtn.setAttribute('aria-label',open?'Obre el menú':'Tanca el menú');
+  menuBtn.querySelector('use').setAttribute('href',open?'#i-menu':'#i-x');
+  mnav.hidden=open;
+});
+mnav.addEventListener('click',e=>{ if(e.target.closest('a')) menuBtn.click(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape' && !mnav.hidden){ menuBtn.click(); menuBtn.focus(); } });
+
+/* Comptador de la cistella (la mateixa dada que fa servir la botiga) */
+try{
+  const n=(JSON.parse(localStorage.getItem('rondo_cart'))||[]).reduce((s,x)=>s+x.qty,0);
+  const b=document.getElementById('cartBadge'); b.textContent=n; b.dataset.n=n;
+  document.getElementById('cartLink').setAttribute('aria-label',`Cistella, ${n} ${n===1?'article':'articles'}`);
+}catch(e){}
+</script>
+</body>
+</html>

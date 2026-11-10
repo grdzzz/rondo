@@ -1,0 +1,662 @@
+<!doctype html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#090C02">
+<meta name="color-scheme" content="light">
+<title>Lloguer de material · Rondo</title>
+<meta name="description" content="Lloga material de muntanya, neu i aigua per hores. Tria el dia i l'hora i reserva en línia.">
+<link rel="icon" type="image/svg+xml" href="brand/rondo-cuernos-rojo.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://images.unsplash.com">
+<!-- Nexa no és a Google Fonts: Outfit és el substitut més proper. Si teniu la llicència de Nexa, canvieu --font-head a rondo.css. -->
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Playfair+Display:ital,wght@1,500;1,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="rondo.css">
+<style>
+:root{--radius:12px;--radius-lg:16px}
+.wrap{max-width:1440px;margin:0 auto;padding:0 24px}
+.badge.bump{animation:bump .35s var(--ease)}
+@keyframes bump{40%{transform:scale(1.35)}}
+
+/* Capçalera de pàgina */
+.page-head{padding:40px 0 28px}
+.crumbs{font-size:14px;color:var(--muted);margin:0 0 12px}
+.crumbs ol{list-style:none;margin:0;padding:0;display:flex;gap:8px;flex-wrap:wrap}
+.crumbs li+li::before{content:"/";margin-right:8px;color:#9EA394}
+.crumbs a{text-decoration:none}
+.crumbs a:hover{text-decoration:underline;text-underline-offset:3px}
+.page-head h1{font-size:clamp(34px,5vw,56px);text-transform:uppercase;letter-spacing:.01em}
+.page-head h1 em{font-family:var(--font-accent);text-transform:none;font-weight:500;color:var(--vermell)}
+.page-head p{margin:10px 0 0;color:var(--muted);max-width:620px}
+
+/* Barra de filtres */
+.toolbar{position:sticky;top:calc(var(--header-h) + 12px);z-index:20;background:var(--surface);display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:space-between;padding:12px 0;margin-bottom:8px;border-bottom:1px solid var(--line)}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{min-height:44px;border:1.5px solid var(--line);background:var(--surface);padding:0 18px;border-radius:999px;font-weight:700;font-size:15px;transition:background-color .15s var(--ease),border-color .15s var(--ease),color .15s var(--ease)}
+.chip:hover{border-color:var(--negre)}
+.chip[aria-pressed="true"]{background:var(--negre);border-color:var(--negre);color:#fff}
+.search{flex:1;min-width:220px;max-width:340px;position:relative}
+.search input{width:100%;min-height:44px;padding:0 16px 0 42px;border-radius:999px;border:1.5px solid var(--line);background:var(--surface);font-size:16px}
+.search input:focus-visible{outline:none;border-color:var(--negre);box-shadow:0 0 0 3px var(--salvia-clar)}
+.search svg{position:absolute;left:15px;top:50%;transform:translateY(-50%);width:18px;height:18px;color:var(--muted);pointer-events:none}
+.result-count{font-size:14px;color:var(--muted);margin:12px 0 20px}
+
+/* Graella */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:40px 16px;padding-bottom:96px}
+.card{display:flex;flex-direction:column;min-width:0}
+.thumb{position:relative;aspect-ratio:4/3;overflow:hidden;background:var(--gris)}
+.thumb img{width:100%;height:100%;object-fit:cover;transition:transform .5s var(--ease)}
+.card:hover .thumb img{transform:scale(1.03)}
+.thumb .tag{position:absolute;top:12px;left:12px;background:var(--vermell);color:#fff;font-size:12px;font-weight:700;padding:5px 10px;border-radius:999px}
+.thumb .stock{position:absolute;top:12px;right:12px;background:rgba(255,255,255,.92);font-size:12px;font-weight:700;padding:5px 10px;border-radius:999px}
+.card-body{padding:16px 2px 0;display:flex;flex-direction:column;gap:6px;flex:1;min-width:0}
+.card .cat{font-family:var(--font-accent);font-style:italic;color:var(--muted);font-size:15px}
+.card h2{font-family:var(--font-body);font-weight:400;font-size:22px}
+.card p{margin:0;color:var(--muted);font-size:15px;flex:1}
+.next{font-size:14px;font-weight:700;color:var(--ok);display:flex;align-items:baseline;gap:8px}
+.next::before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor;flex-shrink:0;transform:translateY(-1px)}
+.next.none{color:var(--vermell)}
+.price-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:10px;padding-top:12px;border-top:1px solid var(--line)}
+.price{font-family:var(--font-head);font-size:22px;font-weight:800}
+.price small{font-family:var(--font-body);font-size:14px;color:var(--muted);font-weight:400}
+.empty{grid-column:1/-1;text-align:center;color:var(--muted);padding:56px 16px}
+.empty strong{display:block;color:var(--ink);font-family:var(--font-head);font-size:20px;margin-bottom:6px}
+.ph{width:100%;height:100%;object-fit:cover;display:block}
+
+/* Modal */
+.overlay{position:fixed;inset:0;background:rgba(9,12,2,.55);z-index:50;display:none;align-items:center;justify-content:center;padding:16px;overscroll-behavior:contain}
+.overlay.open{display:flex;animation:fade .2s var(--ease)}
+@keyframes fade{from{opacity:0}}
+.modal{background:var(--surface);border-radius:var(--radius-lg);width:100%;max-width:660px;max-height:calc(100dvh - 32px);overflow:auto;overscroll-behavior:contain;animation:rise .25s var(--ease)}
+@keyframes rise{from{transform:translateY(16px);opacity:0}}
+.modal-head{display:flex;gap:16px;align-items:center;padding:22px 22px 8px}
+.modal-head .ico{width:72px;height:72px;border-radius:10px;overflow:hidden;flex-shrink:0;background:var(--gris)}
+.modal-head h2{font-size:23px}
+.modal-head .sub{color:var(--muted);font-size:15px}
+.x{margin-left:auto;align-self:flex-start;border:0;background:var(--gris);width:44px;height:44px;border-radius:50%;display:grid;place-items:center;flex-shrink:0;transition:background-color .15s}
+.x:hover{background:#DCDDD8}
+.x svg{width:18px;height:18px}
+.modal-body{padding:4px 22px 22px}
+.step{font-family:var(--font-head);font-weight:700;font-size:15px;margin:20px 0 10px;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.step span{font-family:var(--font-body);color:var(--muted);font-weight:400;font-size:14px}
+.days{display:flex;gap:8px;overflow-x:auto;padding:3px 3px 6px;margin:0 -3px;scrollbar-width:thin;overscroll-behavior-x:contain}
+.day{flex-shrink:0;border:1.5px solid var(--line);background:#fff;border-radius:var(--radius);width:64px;min-height:64px;padding:6px 0;text-align:center;transition:background-color .15s,border-color .15s,color .15s}
+.day .dw{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:700}
+.day .dn{display:block;font-family:var(--font-head);font-size:21px;font-weight:800}
+.day:hover{border-color:var(--salvia)}
+.day[aria-pressed="true"]{background:var(--negre);border-color:var(--negre);color:#fff}
+.day[aria-pressed="true"] .dw{color:var(--salvia-clar)}
+.slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px}
+.slot{min-height:52px;border:1.5px solid var(--line);background:#fff;border-radius:10px;padding:6px 4px;font-weight:700;font-size:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.15;transition:background-color .12s,border-color .12s,color .12s}
+.slot small{font-weight:400;font-size:12px;color:var(--muted)}
+.slot:hover:not(:disabled){border-color:var(--negre)}
+.slot[aria-pressed="true"]{background:var(--vermell);border-color:var(--vermell);color:#fff}
+.slot[aria-pressed="true"] small{color:#FBE3DC}
+.slot.low:not([aria-pressed="true"]) small{color:var(--vermell);font-weight:700}
+.slot:disabled{background:var(--gris);border-color:var(--gris);color:#6E7266;cursor:not-allowed}
+.slot:disabled .h{text-decoration:line-through}
+.legend{display:flex;gap:16px;font-size:13px;color:var(--muted);margin-top:10px;flex-wrap:wrap}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:4px;margin-right:6px;vertical-align:-1px}
+.opts{display:flex;gap:28px;flex-wrap:wrap}
+.stepper{display:inline-flex;align-items:center;border:1.5px solid var(--line);border-radius:999px;overflow:hidden;background:#fff}
+.stepper button{border:0;background:none;width:48px;height:48px;font-size:22px;font-weight:700;transition:background-color .12s}
+.stepper button:hover:not(:disabled){background:var(--gris)}
+.stepper button:disabled{color:#B3B6AC;cursor:not-allowed}
+.stepper output{min-width:64px;text-align:center;font-weight:700}
+.hint{font-size:13px;color:var(--muted);margin-top:6px}
+.summary{position:sticky;bottom:0;margin:24px -22px -22px;background:var(--paper);border-top:1px solid var(--line);padding:16px 22px calc(16px + env(safe-area-inset-bottom));display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.summary .txt{font-size:14px;color:var(--muted)}
+.summary .tot{font-family:var(--font-head);font-size:26px;font-weight:800}
+
+/* Cistella */
+.scrim{position:fixed;inset:0;background:rgba(9,12,2,.45);z-index:55;opacity:0;pointer-events:none;transition:opacity .25s var(--ease)}
+.scrim.open{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;height:100%;height:100dvh;width:min(440px,100%);background:var(--surface);z-index:60;transform:translateX(100%);visibility:hidden;transition:transform .3s var(--ease),visibility 0s .3s;display:flex;flex-direction:column;overscroll-behavior:contain;padding-bottom:env(safe-area-inset-bottom)}
+.drawer.open{transform:none;visibility:visible;transition:transform .3s var(--ease),visibility 0s}
+.drawer-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid var(--line)}
+.drawer-head h2{font-size:24px}
+.drawer-items{flex:1;overflow:auto;padding:8px 20px;overscroll-behavior:contain}
+.item{display:flex;gap:14px;padding:16px 0;border-bottom:1px solid var(--line)}
+.item .ico{width:64px;height:64px;border-radius:8px;overflow:hidden;flex-shrink:0;background:var(--gris)}
+.item .info{min-width:0;flex:1}
+.item h3{font-size:17px;margin-bottom:2px}
+.item .meta{font-size:14px;color:var(--muted)}
+.item .right{text-align:right;display:flex;flex-direction:column;align-items:flex-end;justify-content:space-between;gap:6px}
+.item .p{font-family:var(--font-head);font-weight:800}
+.rm{border:0;background:none;color:var(--vermell);font-size:14px;font-weight:700;min-height:32px;padding:0 4px;border-radius:6px}
+.rm:hover{text-decoration:underline}
+.drawer-foot{padding:18px 20px;border-top:1px solid var(--line);background:var(--paper)}
+.line{display:flex;justify-content:space-between;font-size:15px;color:var(--muted);margin-bottom:6px}
+.line.total{font-family:var(--font-head);font-size:22px;color:var(--ink);font-weight:800;margin:12px 0 16px}
+.cart-empty{text-align:center;padding:56px 8px;color:var(--muted)}
+.cart-empty svg{width:56px;height:56px;color:var(--salvia);margin:0 auto 12px}
+.cart-empty strong{display:block;color:var(--ink);font-family:var(--font-head);font-size:20px;margin-bottom:4px}
+
+/* Formulari */
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.field label{font-size:14px;font-weight:700}
+.field input{min-height:48px;padding:0 14px;border:1.5px solid var(--line);border-radius:10px;background:#fff;font-size:16px}
+.field input:focus-visible{outline:none;border-color:var(--negre);box-shadow:0 0 0 3px var(--salvia-clar)}
+.field input[aria-invalid="true"]{border-color:var(--vermell)}
+.field .err{font-size:13px;color:var(--vermell);font-weight:700}
+.note{font-size:14px;color:var(--muted)}
+.ok{text-align:center;padding:40px 8px}
+.ok svg{width:72px;height:72px;color:var(--vermell);margin:0 auto}
+.ok h3{font-family:var(--font-accent);font-style:italic;font-size:32px;margin:12px 0 6px}
+.ok .code{display:inline-block;background:var(--paper);border:2px dashed var(--salvia);border-radius:10px;padding:10px 20px;font-family:var(--font-head);font-weight:800;font-size:24px;letter-spacing:.12em;margin:12px 0}
+
+/* Avís */
+.toast{position:fixed;left:16px;right:16px;margin:0 auto;width:fit-content;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateY(140%);opacity:0;pointer-events:none;background:var(--negre);color:#fff;padding:12px 12px 12px 18px;border-radius:12px;font-weight:700;z-index:80;transition:transform .3s var(--ease),opacity .3s var(--ease);display:flex;gap:14px;align-items:center;max-width:520px}
+.toast.show{transform:none;opacity:1;pointer-events:auto}
+.drawer.open ~ .toast{bottom:calc(150px + env(safe-area-inset-bottom))}
+.toast button{flex-shrink:0;white-space:nowrap;border:0;background:var(--salvia-clar);color:var(--negre);border-radius:999px;min-height:36px;padding:0 14px;font-weight:700}
+.toast button:hover{background:#fff}
+.toast:not(:has(button)){padding-right:18px}
+
+@media (max-width:960px){
+  .toolbar{top:calc(var(--header-h) + 8px)}
+}
+@media (max-width:640px){
+  .wrap{padding:0 16px}
+  .page-head{padding:28px 0 16px}
+  .toolbar{position:static}
+  .search{max-width:none}
+  .chips{flex-wrap:nowrap;overflow-x:auto;margin:0 -16px;padding:0 16px;scrollbar-width:none}
+  .chip{flex-shrink:0}
+  .modal-head{padding:18px 18px 6px}
+  .modal-body{padding:4px 18px 18px}
+  .summary{margin:20px -18px -18px;padding:14px 18px calc(14px + env(safe-area-inset-bottom))}
+  .summary .btn{width:100%}
+  .overlay{padding:0;align-items:flex-end}
+  .modal{border-radius:var(--radius-lg) var(--radius-lg) 0 0;max-height:94dvh}
+  .opts{gap:12px;flex-wrap:nowrap}
+  .opts > div{flex:1;min-width:0}
+  .stepper output{min-width:0;flex:1}
+  .stepper{display:flex;justify-content:space-between}
+}
+@media (prefers-reduced-motion:reduce){ .card:hover .thumb img{transform:none} }
+</style>
+</head>
+<body>
+<a class="skip" href="#cataleg">Ves al catàleg</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-horns" viewBox="0 0 256 256"><path d="M164 28C192 46 226 80 231 118C232 132 224 142 208 146L176 154L182 170L140 212L140 150L158 132L184 132C192 104 186 64 164 28Z" fill="currentColor"/><path d="M92 28C64 46 30 80 25 118C24 132 32 142 48 146L80 154L74 170L116 212L116 150L98 132L72 132C64 104 70 64 92 28Z" fill="currentColor"/></symbol>
+    <symbol id="i-bag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12l-1 13H7z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  </defs>
+</svg>
+
+<div class="topbar"><div class="in">
+  <span><strong>Cancel·lació gratuïta</strong> fins a 24&nbsp;h abans de la reserva</span>
+  <nav aria-label="Enllaços d'ajuda"><a href="index.html#com-funciona">Com funciona</a><a href="#contacte">Horari i contacte</a></nav>
+</div></div>
+
+<header class="site-header solid">
+  <div class="bar">
+    <button class="icon-btn menu-btn" type="button" aria-expanded="false" aria-controls="mnav" aria-label="Obre el menú"><svg aria-hidden="true"><use href="#i-menu"/></svg></button>
+    <a class="logo" href="index.html" aria-label="Rondo, inici"><svg aria-hidden="true"><use href="#i-horns"/></svg><span translate="no">Rondo</span></a>
+    <nav class="main-nav" aria-label="Principal"><ul>
+      <li><a href="botiga.html?cat=neu" data-nav="neu">Neu</a></li>
+      <li><a href="botiga.html?cat=muntanya" data-nav="muntanya">Muntanya</a></li>
+      <li><a href="botiga.html?cat=aigua" data-nav="aigua">Aigua</a></li>
+      <li><a href="botiga.html" data-nav="tot">Tot el material</a></li>
+    </ul></nav>
+    <div class="actions">
+      <button class="icon-btn" type="button" id="focusSearch" aria-label="Cerca material"><svg aria-hidden="true"><use href="#i-search"/></svg></button>
+      <button class="icon-btn" type="button" id="openCart" aria-haspopup="dialog" aria-controls="drawer"><svg aria-hidden="true"><use href="#i-bag"/></svg><span class="badge num" id="cartCount" data-n="0" aria-hidden="true">0</span><span class="sr-only" id="cartLabel">Cistella, 0 articles</span></button>
+    </div>
+  </div>
+  <nav class="mobile-nav" id="mnav" aria-label="Principal" hidden><ul>
+    <li><a href="index.html">Inici</a></li>
+    <li><a href="botiga.html?cat=neu">Neu</a></li>
+    <li><a href="botiga.html?cat=muntanya">Muntanya</a></li>
+    <li><a href="botiga.html?cat=aigua">Aigua</a></li>
+    <li><a href="botiga.html">Tot el material</a></li>
+  </ul></nav>
+</header>
+
+<main class="wrap" id="cataleg">
+  <div class="page-head">
+    <nav class="crumbs" aria-label="Ruta"><ol><li><a href="index.html">Inici</a></li><li aria-current="page" id="crumbCat">Lloguer</li></ol></nav>
+    <h1 id="pageTitle">Lloguer de material</h1>
+    <p>Preu per hora i unitat. Tria el dia i l'hora d'inici, i paga a la botiga quan recullis el material.</p>
+  </div>
+  <div class="toolbar">
+    <div class="chips" id="chips" role="group" aria-label="Filtra per categoria"></div>
+    <div class="search">
+      <label for="q" class="sr-only">Cerca material</label>
+      <svg aria-hidden="true"><use href="#i-search"/></svg>
+      <input id="q" name="q" type="search" placeholder="Esquís, caiac, bici…" autocomplete="off" spellcheck="false">
+    </div>
+  </div>
+  <p class="result-count" id="resultCount" aria-live="polite"></p>
+  <div class="grid" id="grid"></div>
+</main>
+
+<footer class="site-footer" id="contacte">
+  <div class="in">
+    <div class="foot-brand"><svg aria-hidden="true"><use href="#i-horns"/></svg><em>Viu el moment</em></div>
+    <div class="foot-cols">
+      <div><h2>Lloguer</h2><ul>
+        <li><a href="botiga.html?cat=neu">Neu</a></li><li><a href="botiga.html?cat=muntanya">Muntanya</a></li><li><a href="botiga.html?cat=aigua">Aigua</a></li><li><a href="botiga.html">Tot el material</a></li></ul></div>
+      <div><h2>Reserves</h2><ul>
+        <li><a href="index.html#com-funciona">Com funciona</a></li><li><a href="botiga.html?cistella=1">La teva cistella</a></li></ul></div>
+      <div><h2>Horari</h2><p>Obert cada dia<br>de 9:00 a 20:00</p></div>
+      <div><h2>Pagament</h2><p>Pagues a la botiga quan reculls el material.</p></div>
+    </div>
+    <div class="foot-legal"><span>© <span translate="no">Rondo</span></span><span>Fotografies: Unsplash</span></div>
+  </div>
+</footer>
+
+<!-- Modal de reserva -->
+<div class="overlay" id="modal">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle" id="modalBox"></div>
+</div>
+
+<!-- Cistella -->
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="dTitle">
+  <div class="drawer-head"><h2 id="dTitle">La teva cistella</h2>
+    <button class="x" id="closeCart" aria-label="Tanca la cistella"><svg aria-hidden="true"><use href="#i-x"/></svg></button></div>
+  <div class="drawer-items" id="items"></div>
+  <div class="drawer-foot" id="foot"></div>
+</aside>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ========== DADES ========== */
+const OPEN = 9, CLOSE = 20, DAYS = 10;
+const CATS = [
+  {id:'tot',name:'Tot'},
+  {id:'neu',name:'Neu'},
+  {id:'muntanya',name:'Muntanya'},
+  {id:'aigua',name:'Aigua'},
+];
+const PRODUCTS = [
+  {id:'esquis',cat:'neu',name:'Esquís all-mountain',desc:'Esquís de 160 a 185 cm amb fixacions ajustades a la teva talla.',price:14,units:8,img:'1585919269458-6259dfe9f21a'},
+  {id:'snow',cat:'neu',name:'Taula de snowboard',desc:'Taula de 145 a 160 cm. Botes de la 36 a la 46.',price:14,units:6,img:'1478700485868-972b69dc3fc4'},
+  {id:'raquetes',cat:'neu',name:'Raquetes de neu',desc:'Raquetes amb alça per a pujades i bastons telescòpics.',price:6,units:10,img:'1765412535991-2bd2b7994014'},
+  {id:'piolet',cat:'neu',name:'Piolet i grampons',desc:'Piolet clàssic de 60 cm i grampons de 12 puntes.',price:8,units:4,img:'1597250861267-429663f244a8'},
+  {id:'btt',cat:'muntanya',name:'Bicicleta de muntanya',desc:'Doble suspensió, rodes de 29". Talles S a XL, casc inclòs.',price:10,units:6,img:'1534146789009-76ed5060ec70'},
+  {id:'ebtt',cat:'muntanya',name:'E-bike de muntanya',desc:'Motor central i 90 km d\'autonomia. Bateria carregada a cada lloguer.',price:18,units:4,img:'1633707167682-9068729bc84c',tag:'Nou'},
+  {id:'escalada',cat:'muntanya',name:'Kit d\'escalada',desc:'Arnès, peus de gat, casc i joc de cintes exprés.',price:9,units:3,img:'1601224748193-d24f166b5c77'},
+  {id:'bastons',cat:'muntanya',name:'Bastons de trekking',desc:'Parell de bastons de carboni plegables, 115 a 135 cm.',price:3,units:12,img:'1760715651666-c3e408bfdda7'},
+  {id:'caiac',cat:'aigua',name:'Caiac doble',desc:'Per a 2 persones. Rems i armilles salvavides inclosos.',price:15,units:3,img:'1588472235218-72ffeeea5775'},
+  {id:'paddle',cat:'aigua',name:'Paddle surf',desc:'Taula inflable de 10\'6" amb rem ajustable i invent.',price:10,units:5,img:'1781367509722-f95625325fd5'},
+];
+const byId = id => PRODUCTS.find(p=>p.id===id);
+const catName = id => CATS.find(c=>c.id===id).name;
+const icon = (n,cls='') => `<svg class="${cls}" aria-hidden="true"><use href="#i-${n}"/></svg>`;
+/* Fotos d'Unsplash. Substituïu-les per fotos del vostre material quan en tingueu. */
+const imgUrl = (p,w) => `https://images.unsplash.com/photo-${p.img}?auto=format&fit=crop&w=${w}&h=${Math.round(w*.75)}&q=70`;
+const photo = (p,w,alt='',lazy=true) => `<img class="ph" src="${imgUrl(p,w)}" srcset="${imgUrl(p,w)} 1x, ${imgUrl(p,w*2)} 2x" width="${w}" height="${Math.round(w*.75)}" alt="${alt}" ${lazy?'loading="lazy"':''} decoding="async">`;
+
+/* ========== ESTAT ========== */
+const store = {
+  get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+};
+let cart = store.get('rondo_cart',[]);
+let bookings = store.get('rondo_bookings',[]);
+const params = new URLSearchParams(location.search);
+let filter = CATS.some(c=>c.id===params.get('cat')) ? params.get('cat') : 'tot';
+let query = (params.get('q')||'').toLowerCase().trim();
+
+/* ========== UTILITATS ========== */
+const LOCALE = 'ca-ES';
+const pad = n => String(n).padStart(2,'0');
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const parseYmd = s => { const [y,m,d]=s.split('-').map(Number); return new Date(y,m-1,d); };
+const moneyFmt = new Intl.NumberFormat(LOCALE,{style:'currency',currency:'EUR',maximumFractionDigits:2,minimumFractionDigits:0});
+const eur = n => moneyFmt.format(n);
+const dateFmt = new Intl.DateTimeFormat(LOCALE,{weekday:'long',day:'numeric',month:'long'});
+const wdFmt = new Intl.DateTimeFormat(LOCALE,{weekday:'short'});
+const timeFmt = new Intl.DateTimeFormat(LOCALE,{hour:'2-digit',minute:'2-digit'});
+const today = () => ymd(new Date());
+const fmtDate = s => s===today() ? 'avui' : dateFmt.format(parseYmd(s));
+const hourStr = h => timeFmt.format(new Date(2000,0,1,h));
+const plural = (n,one,many) => `${n} ${n===1?one:many}`;
+function hash(str){let h=2166136261;for(const c of str){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return (h>>>0)/4294967295}
+function nextDays(n=DAYS){const out=[];const t=new Date();for(let i=0;i<n;i++){const d=new Date(t);d.setDate(t.getDate()+i);out.push(d)}return out}
+
+/* Ocupació d'altres clients (simulada i estable per producte, dia i hora).
+   Quan hi hagi un servidor, substituïu aquesta funció per la resposta de l'API. */
+function externalBusy(p,date,h){
+  const r = hash(p.id+date+h);
+  const peak = (h>=10&&h<=12)||(h>=16&&h<=18) ? .35 : 0;
+  const weekend = [0,6].includes(parseYmd(date).getDay()) ? .2 : 0;
+  return Math.min(p.units, Math.floor((r*0.9+peak+weekend) * p.units * 0.85));
+}
+function freeUnits(p,date,h,ignoreUid){
+  const now=new Date();
+  if(date===ymd(now) && h<=now.getHours()) return 0;
+  let used = externalBusy(p,date,h);
+  const cover = x => x.pid===p.id && x.date===date && h>=x.start && h<x.start+x.hours;
+  bookings.forEach(b=>b.items.forEach(x=>{ if(cover(x)) used+=x.qty }));
+  cart.forEach(x=>{ if(x.uid!==ignoreUid && cover(x)) used+=x.qty });
+  return Math.max(0,p.units-used);
+}
+function rangeFree(p,date,start,hours){
+  let min=Infinity;
+  for(let h=start;h<start+hours;h++){ if(h>=CLOSE) return 0; min=Math.min(min,freeUnits(p,date,h)); }
+  return min;
+}
+const dayHasFree = (p,ds) => { for(let h=OPEN;h<CLOSE;h++) if(freeUnits(p,ds,h)>0) return true; return false; };
+function nextAvailable(p){
+  for(const d of nextDays()){const ds=ymd(d);for(let h=OPEN;h<CLOSE;h++){if(freeUnits(p,ds,h)>0){
+    return `${ds===today()?'avui':wdFmt.format(d).replace('.','')+' '+d.getDate()} a les ${hourStr(h)}`;
+  }}}
+  return null;
+}
+
+/* ========== CATÀLEG ========== */
+const chips=document.getElementById('chips'), grid=document.getElementById('grid'), q=document.getElementById('q'), resultCount=document.getElementById('resultCount');
+function syncUrl(){
+  const u=new URLSearchParams();
+  if(filter!=='tot') u.set('cat',filter);
+  if(query) u.set('q',query);
+  history.replaceState(null,'',u.toString()?`?${u}`:location.pathname);
+}
+function renderChips(){
+  chips.innerHTML = CATS.map(c=>`<button type="button" class="chip" data-c="${c.id}" aria-pressed="${c.id===filter}">${c.name}</button>`).join('');
+}
+chips.addEventListener('click', e => { const b=e.target.closest('.chip'); if(!b) return; filter=b.dataset.c; syncUrl(); renderChips(); renderGrid(); });
+q.value = query;
+q.addEventListener('input', e => { query=e.target.value.toLowerCase().trim(); syncUrl(); renderGrid(); });
+document.getElementById('focusSearch').addEventListener('click', () => q.focus());
+function renderHead(){
+  const t = filter==='tot' ? 'Lloguer de material' : `Material de ${catName(filter).toLowerCase()}`;
+  document.getElementById('pageTitle').textContent = t;
+  document.getElementById('crumbCat').textContent = filter==='tot' ? 'Lloguer' : catName(filter);
+  document.title = `${t} · Rondo`;
+  document.querySelectorAll('.main-nav [data-nav]').forEach(a=>{ if(a.dataset.nav===filter) a.setAttribute('aria-current','page'); else a.removeAttribute('aria-current'); });
+}
+chips.addEventListener('click', renderHead);
+
+/* Menú mòbil */
+const menuBtn=document.querySelector('.menu-btn'), mnav=document.getElementById('mnav');
+menuBtn.addEventListener('click',()=>{
+  const open=menuBtn.getAttribute('aria-expanded')==='true';
+  menuBtn.setAttribute('aria-expanded',String(!open));
+  menuBtn.setAttribute('aria-label',open?'Obre el menú':'Tanca el menú');
+  menuBtn.querySelector('use').setAttribute('href',open?'#i-menu':'#i-x');
+  mnav.hidden=open;
+});
+document.addEventListener('keydown',e=>{ if(e.key==='Escape' && !mnav.hidden){ menuBtn.click(); menuBtn.focus(); } });
+
+function renderGrid(){
+  const list = PRODUCTS.filter(p=>(filter==='tot'||p.cat===filter) && (!query || (p.name+' '+p.desc+' '+p.cat).toLowerCase().includes(query)));
+  resultCount.textContent = plural(list.length,'article','articles');
+  if(!list.length){
+    grid.innerHTML = `<div class="empty"><strong>No hi ha cap article que coincideixi</strong>Prova amb una altra paraula o <button class="btn btn-ghost" type="button" id="clearSearch" style="margin-top:12px">mostra tot el material</button></div>`;
+    document.getElementById('clearSearch').onclick=()=>{query='';filter='tot';q.value='';syncUrl();renderChips();renderGrid();q.focus();};
+    return;
+  }
+  grid.innerHTML = list.map((p,i)=>{
+    const nx = nextAvailable(p);
+    return `<article class="card">
+      <div class="thumb">
+        ${photo(p,640,'',i>2)}
+        ${p.tag?`<span class="tag">${p.tag}</span>`:''}
+        <span class="stock num">${plural(p.units,'unitat','unitats')}</span>
+      </div>
+      <div class="card-body">
+        <span class="cat">${catName(p.cat)}</span>
+        <h2>${p.name}</h2>
+        <p>${p.desc}</p>
+        <div class="next ${nx?'':'none'}">${nx?'Lliure '+nx:'Complet els propers 10 dies'}</div>
+        <div class="price-row">
+          <div class="price num">${eur(p.price)} <small>/ hora</small></div>
+          <button type="button" class="btn btn-primary" data-book="${p.id}" ${nx?'':'disabled'} aria-label="Reserva ${p.name}">Reserva</button>
+        </div>
+      </div>
+    </article>`;
+  }).join('');
+}
+grid.addEventListener('click', e => { const b=e.target.closest('[data-book]'); if(b) openBooking(b.dataset.book, b); });
+
+/* ========== FOCUS DELS DIÀLEGS ========== */
+let lastFocus=null;
+const FOCUSABLE='button:not(:disabled),a[href],input:not(:disabled),[tabindex]:not([tabindex="-1"])';
+function trapTab(e,root){
+  if(e.key!=='Tab') return;
+  const f=[...root.querySelectorAll(FOCUSABLE)].filter(el=>el.offsetParent!==null);
+  if(!f.length) return;
+  const first=f[0], last=f[f.length-1];
+  if(e.shiftKey && document.activeElement===first){ e.preventDefault(); last.focus(); }
+  else if(!e.shiftKey && document.activeElement===last){ e.preventDefault(); first.focus(); }
+}
+const setInert = on => { document.querySelector('main').inert=on; document.querySelector('header').inert=on; document.querySelector('footer').inert=on; };
+
+/* ========== MODAL DE RESERVA ========== */
+const modal=document.getElementById('modal'), modalBox=document.getElementById('modalBox');
+let bk = null;
+function openBooking(pid, opener){
+  const p = byId(pid);
+  bk = {p, date: today(), start:null, hours:1, qty:1};
+  if(!dayHasFree(p,bk.date)){ const d=nextDays().find(d=>dayHasFree(p,ymd(d))); if(d) bk.date=ymd(d); }
+  lastFocus = opener || document.activeElement;
+  renderModal(); modal.classList.add('open'); document.body.style.overflow='hidden'; setInert(true);
+  modalBox.querySelector('.day[aria-pressed="true"]').focus();
+}
+function closeModal(){
+  modal.classList.remove('open'); document.body.style.overflow=''; setInert(false); bk=null;
+  if(lastFocus && document.contains(lastFocus)) lastFocus.focus();
+}
+modal.addEventListener('click', e => { if(e.target===modal) closeModal(); });
+modal.addEventListener('keydown', e => trapTab(e,modalBox));
+
+function maxHoursFrom(p,date,start,qty){ let n=0; while(start+n<CLOSE && freeUnits(p,date,start+n)>=qty && n<8) n++; return Math.max(1,n); }
+
+function renderModal(focusSel){
+  const {p,date,start,hours,qty} = bk;
+  const days = nextDays().map(d=>{
+    const ds=ymd(d), full=!dayHasFree(p,ds);
+    const label = `${ds===today()?'Avui, ':''}${dateFmt.format(d)}${full?', complet':''}`;
+    return `<button type="button" class="day" data-day="${ds}" aria-pressed="${ds===date}" aria-label="${label}" ${full?'disabled style="opacity:.45;cursor:not-allowed"':''}>
+      <span class="dw">${ds===today()?'Avui':wdFmt.format(d).replace('.','')}</span>
+      <span class="dn num">${d.getDate()}</span></button>`;
+  }).join('');
+  let slots='';
+  const firstH = date===today() ? Math.max(OPEN,new Date().getHours()+1) : OPEN;
+  if(firstH>OPEN) slots += `<p class="hint" style="grid-column:1/-1;margin:0 0 2px">Avui només es mostren les hores que encara no han passat.</p>`;
+  for(let h=firstH;h<CLOSE;h++){
+    const f=freeUnits(p,date,h);
+    const inSel = start!==null && h>=start && h<start+hours;
+    const info = f===0?'Complet':f<=2?`Queden ${f}`:`${f} lliures`;
+    slots += `<button type="button" class="slot ${f>0&&f<=2?'low':''}" data-h="${h}" aria-pressed="${inSel}" aria-label="${hourStr(h)}, ${info.toLowerCase()}" ${f===0?'disabled':''}>
+      <span class="h num">${hourStr(h)}</span><small>${info}</small></button>`;
+  }
+  const maxH = start===null?1:maxHoursFrom(p,date,start,qty);
+  const maxQ = start===null?1:rangeFree(p,date,start,hours);
+  const total = p.price*hours*qty;
+  modalBox.innerHTML = `
+    <div class="modal-head">
+      <div class="ico">${photo(p,160,'',false)}</div>
+      <div><h2 id="mTitle">${p.name}</h2><div class="sub num">${eur(p.price)} per hora i unitat</div></div>
+      <button type="button" class="x" data-close aria-label="Tanca">${icon('x')}</button>
+    </div>
+    <div class="modal-body">
+      <div class="step" id="lDay">1. Tria el dia</div>
+      <div class="days" role="group" aria-labelledby="lDay">${days}</div>
+      <div class="step"><span id="lHour" style="font:inherit;color:inherit">2. Tria l'hora d'inici</span><span>${fmtDate(date)}</span></div>
+      <div class="slots" role="group" aria-labelledby="lHour">${slots}</div>
+      <div class="legend" aria-hidden="true"><span><i style="background:#fff;border:1.5px solid var(--line)"></i>Lliure</span><span><i style="background:var(--vermell)"></i>La teva reserva</span><span><i style="background:var(--gris)"></i>Complet</span></div>
+      <div class="opts">
+        <div><div class="step" id="lDur">3. Durada</div>
+          <div class="stepper" role="group" aria-labelledby="lDur"><button type="button" data-dh="-1" aria-label="Una hora menys" ${hours<=1?'disabled':''}>−</button><output class="num" aria-live="polite">${plural(hours,'hora','hores')}</output><button type="button" data-dh="1" aria-label="Una hora més" ${start===null||hours>=maxH?'disabled':''}>+</button></div>
+          ${start!==null&&hours>=maxH&&maxH<8?`<div class="hint">L'hora següent està completa o tanquem</div>`:''}</div>
+        <div><div class="step" id="lQty">Unitats</div>
+          <div class="stepper" role="group" aria-labelledby="lQty"><button type="button" data-dq="-1" aria-label="Una unitat menys" ${qty<=1?'disabled':''}>−</button><output class="num" aria-live="polite">${qty}</output><button type="button" data-dq="1" aria-label="Una unitat més" ${start===null||qty>=maxQ?'disabled':''}>+</button></div>
+          ${start!==null&&qty>=maxQ&&maxQ>0?`<div class="hint">${plural(maxQ,'unitat lliure','unitats lliures')} en aquest horari</div>`:''}</div>
+      </div>
+      <div class="summary">
+        <div><div class="txt" aria-live="polite">${start===null?'Tria una hora per continuar':`${fmtDate(date)}, de ${hourStr(start)} a ${hourStr(start+hours)}, ${plural(qty,'unitat','unitats')}`}</div>
+        <div class="tot num">${eur(total)}</div></div>
+        <button type="button" class="btn btn-primary" id="addBtn" ${start===null?'disabled':''}>${icon('bag')} Afegeix a la cistella</button>
+      </div>
+    </div>`;
+  if(focusSel){ const el=modalBox.querySelector(focusSel); (el && !el.disabled ? el : modalBox.querySelector('#addBtn:not(:disabled)') || modalBox.querySelector('[data-close]')).focus(); }
+}
+modalBox.addEventListener('click', e => {
+  const t = e.target.closest('button'); if(!t||!bk) return;
+  let focusSel;
+  if(t.dataset.close!==undefined) return closeModal();
+  if(t.dataset.day){ bk.date=t.dataset.day; bk.start=null; bk.hours=1; bk.qty=1; focusSel=`[data-day="${bk.date}"]`; }
+  else if(t.dataset.h){ const h=+t.dataset.h; bk.start=h; bk.hours=1; bk.qty=Math.max(1,Math.min(bk.qty,freeUnits(bk.p,bk.date,h))); focusSel=`[data-h="${h}"]`; }
+  else if(t.dataset.dh){ bk.hours=Math.max(1,bk.hours+ +t.dataset.dh); focusSel=`[data-dh="${t.dataset.dh}"]`; }
+  else if(t.dataset.dq){ bk.qty=Math.max(1,bk.qty+ +t.dataset.dq); focusSel=`[data-dq="${t.dataset.dq}"]`; }
+  else if(t.id==='addBtn') return addToCart();
+  renderModal(focusSel);
+});
+
+/* ========== CISTELLA ========== */
+const drawer=document.getElementById('drawer'), scrim=document.getElementById('scrim'), items=document.getElementById('items'), foot=document.getElementById('foot');
+const cartCount=document.getElementById('cartCount'), cartLabel=document.getElementById('cartLabel');
+function saveCart(bump=true){
+  store.set('rondo_cart',cart);
+  const n = cart.reduce((s,x)=>s+x.qty,0);
+  cartCount.textContent=n; cartCount.dataset.n=n; cartLabel.textContent=`Cistella, ${plural(n,'article','articles')}`;
+  if(bump){ cartCount.classList.remove('bump'); void cartCount.offsetWidth; cartCount.classList.add('bump'); }
+}
+function addToCart(){
+  const {p,date,start,hours,qty}=bk;
+  if(rangeFree(p,date,start,hours) < qty){ toast('Aquest horari ja no està lliure. Tria una altra hora.'); return renderModal(); }
+  cart.push({uid:Date.now().toString(36)+Math.random().toString(36).slice(2,6),pid:p.id,date,start,hours,qty});
+  saveCart(); closeModal(); renderGrid();
+  toast(`${p.name} afegit a la cistella`, 'Veure cistella', openCart);
+}
+function removeItem(uid){
+  const i=cart.findIndex(x=>x.uid===uid); if(i<0) return;
+  const [removed]=cart.splice(i,1);
+  saveCart(); renderCart(); renderGrid();
+  toast(`${byId(removed.pid).name} eliminat`, 'Desfés', ()=>{ cart.splice(i,0,removed); saveCart(); renderCart(); renderGrid(); }, 6000);
+  (items.querySelector('.rm') || document.getElementById('closeCart')).focus();
+}
+const subtotal = () => cart.reduce((s,x)=>s+byId(x.pid).price*x.hours*x.qty,0);
+const totalHours = () => cart.reduce((s,x)=>s+x.hours*x.qty,0);
+const discount = () => totalHours()>=6 ? Math.round(subtotal()*10)/100 : 0;
+
+function renderCart(){
+  if(!cart.length){
+    items.innerHTML = `<div class="cart-empty">${icon('bag')}<strong>La cistella és buida</strong>Tria un article del catàleg i reserva l'hora que et vagi bé.</div>`;
+    foot.innerHTML = `<button type="button" class="btn btn-ghost btn-block" data-act="keep">Torna al catàleg</button>`;
+    return;
+  }
+  items.innerHTML = cart.map(x=>{ const p=byId(x.pid); return `
+    <div class="item">
+      <div class="ico">${photo(p,160,'',false)}</div>
+      <div class="info"><h3>${p.name}</h3>
+        <div class="meta num">${fmtDate(x.date)}<br>De ${hourStr(x.start)} a ${hourStr(x.start+x.hours)} · ${plural(x.qty,'unitat','unitats')}</div></div>
+      <div class="right"><div class="p num">${eur(p.price*x.hours*x.qty)}</div><button type="button" class="rm" data-rm="${x.uid}" aria-label="Elimina ${p.name} de ${fmtDate(x.date)}">Elimina</button></div>
+    </div>`}).join('');
+  const d=discount(), left=6-totalHours();
+  foot.innerHTML = `
+    <div class="line num"><span>Subtotal</span><span>${eur(subtotal())}</span></div>
+    <div class="line num"><span>${d?'Descompte per 6 hores o més (10%)':`Afegeix ${plural(left,'hora','hores')} més i tens un 10% de descompte`}</span><span>${d?'−'+eur(d):''}</span></div>
+    <div class="line total num"><span>Total</span><span>${eur(subtotal()-d)}</span></div>
+    <button type="button" class="btn btn-primary btn-block" data-act="checkout">Continua amb les teves dades ${icon('arrow')}</button>`;
+}
+items.addEventListener('click', e => { const b=e.target.closest('[data-rm]'); if(b) removeItem(b.dataset.rm); });
+foot.addEventListener('click', e => {
+  const a=e.target.closest('[data-act]')?.dataset.act;
+  if(a==='keep') closeCart();
+  if(a==='checkout') showCheckout();
+  if(a==='back'){ renderCart(); foot.querySelector('[data-act="checkout"]').focus(); }
+});
+function openCart(){
+  toastEl.classList.remove('show');
+  lastFocus=document.activeElement;
+  renderCart(); drawer.classList.add('open'); scrim.classList.add('open'); setInert(true); document.body.style.overflow='hidden';
+  setTimeout(()=>document.getElementById('closeCart').focus(),50);
+}
+function closeCart(){
+  drawer.classList.remove('open'); scrim.classList.remove('open'); setInert(false); document.body.style.overflow='';
+  const back = lastFocus && document.contains(lastFocus) && !drawer.contains(lastFocus) ? lastFocus : document.getElementById('openCart');
+  back.focus();
+}
+document.getElementById('openCart').addEventListener('click',openCart);
+document.getElementById('closeCart').addEventListener('click',closeCart);
+scrim.addEventListener('click',closeCart);
+drawer.addEventListener('keydown', e => trapTab(e,drawer));
+
+/* ========== DADES I CONFIRMACIÓ ========== */
+function showCheckout(){
+  items.innerHTML = `
+    <h3 style="margin:12px 0 16px;font-size:20px">Les teves dades</h3>
+    <form id="form" novalidate>
+      <div class="field"><label for="fn">Nom i cognoms</label><input id="fn" name="name" autocomplete="name" placeholder="Laia Puig" aria-describedby="fn-e"><span class="err" id="fn-e"></span></div>
+      <div class="field"><label for="fe">Correu electrònic</label><input id="fe" name="email" type="email" inputmode="email" autocomplete="email" spellcheck="false" placeholder="laia@exemple.cat" aria-describedby="fe-e"><span class="err" id="fe-e"></span></div>
+      <div class="field"><label for="fp">Telèfon</label><input id="fp" name="tel" type="tel" inputmode="tel" autocomplete="tel" placeholder="600 123 456" aria-describedby="fp-e"><span class="err" id="fp-e"></span></div>
+      <p class="note">Pagues a la botiga quan recullis el material. Pots cancel·lar sense cost fins a 24&nbsp;h abans.</p>
+      <button type="submit" hidden></button>
+    </form>`;
+  const d=discount();
+  foot.innerHTML = `
+    <div class="line total num"><span>Total</span><span>${eur(subtotal()-d)}</span></div>
+    <div style="display:flex;gap:10px"><button type="button" class="btn btn-ghost" data-act="back">Enrere</button>
+    <button type="submit" form="form" class="btn btn-primary" style="flex:1" id="confirm">Confirma la reserva</button></div>`;
+  document.getElementById('form').addEventListener('submit', e => { e.preventDefault(); confirmBooking(); });
+  document.getElementById('fn').focus();
+}
+function confirmBooking(){
+  const fields=[
+    ['fn', v=>v.length>1, 'Escriu el teu nom.'],
+    ['fe', v=>/^\S+@\S+\.\S+$/.test(v), 'Escriu un correu amb el format nom@domini.cat.'],
+    ['fp', v=>/^[\d\s+()-]{9,}$/.test(v), 'Escriu un telèfon de 9 xifres com a mínim.'],
+  ];
+  let firstBad=null;
+  for(const [id,ok,msg] of fields){
+    const el=document.getElementById(id), good=ok(el.value.trim());
+    el.setAttribute('aria-invalid',String(!good));
+    document.getElementById(id+'-e').textContent = good?'':msg;
+    if(!good && !firstBad) firstBad=el;
+  }
+  if(firstBad){ firstBad.focus(); return; }
+  for(const x of cart){ const p=byId(x.pid);
+    for(let h=x.start;h<x.start+x.hours;h++) if(freeUnits(p,x.date,h,x.uid)<x.qty){ toast(`${p.name} ja no està lliure a l'hora triada. Elimina'l i torna'l a reservar.`); renderCart(); return; } }
+  const btn=document.getElementById('confirm'); btn.disabled=true; btn.textContent='Confirmant…';
+  const name=fn.value.trim();
+  const code='RD-'+Math.random().toString(36).slice(2,8).toUpperCase();
+  const total=subtotal()-discount();
+  bookings.push({code,customer:{name,email:fe.value.trim(),tel:fp.value.trim()},items:cart,total,at:new Date().toISOString()});
+  store.set('rondo_bookings',bookings);
+  cart=[]; saveCart(false); renderGrid();
+  items.innerHTML = `<div class="ok" tabindex="-1" id="okBox">${icon('horns')}<h3>Ja ho tens, ${name.split(' ')[0]}</h3>
+    <p class="note">Ensenya aquest codi a la botiga quan vinguis a buscar el material:</p>
+    <div class="code" translate="no">${code}</div>
+    <p class="note">Total a pagar a la botiga: <strong class="num" style="color:var(--ink)">${eur(total)}</strong></p></div>`;
+  foot.innerHTML = `<button type="button" class="btn btn-ghost btn-block" data-act="keep">Torna al catàleg</button>`;
+  document.getElementById('okBox').focus();
+}
+
+/* ========== AVÍS ========== */
+const toastEl=document.getElementById('toast'); let tt;
+function toast(msg, actionLabel, action, ms=3500){
+  toastEl.innerHTML=''; const s=document.createElement('span'); s.textContent=msg; toastEl.appendChild(s);
+  if(actionLabel){ const b=document.createElement('button'); b.type='button'; b.textContent=actionLabel; b.onclick=()=>{ toastEl.classList.remove('show'); action(); }; toastEl.appendChild(b); }
+  toastEl.classList.add('show'); clearTimeout(tt); tt=setTimeout(()=>toastEl.classList.remove('show'),ms);
+}
+toastEl.addEventListener('mouseenter',()=>clearTimeout(tt));
+toastEl.addEventListener('mouseleave',()=>{tt=setTimeout(()=>toastEl.classList.remove('show'),2000)});
+
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ if(modal.classList.contains('open')) closeModal(); else if(drawer.classList.contains('open')) closeCart(); } });
+
+/* ========== INICI ========== */
+cart = cart.filter(x=>x.date>=today());
+renderChips(); renderHead(); renderGrid(); saveCart(false);
+/* Enllaços que arriben des de la portada */
+if(byId(params.get('p'))){ const p=byId(params.get('p')); filter='tot'; syncUrl(); if(nextAvailable(p)) openBooking(p.id); }
+else if(params.get('cistella')){ syncUrl(); openCart(); }
+else if(params.get('cerca')){ syncUrl(); q.focus(); }
+</script>
+</body>
+</html>
